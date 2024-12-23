@@ -52,6 +52,20 @@
 #define SENSOR_TYPE "Template"
 #endif
 
+#ifndef PLATFORM_NAME
+#define PLATFORM_NAME "NodeSense"
+#endif
+
+#ifndef PLATFORM_VERSION
+#define PLATFORM_VERSION "1.0.0"
+#endif
+
+#define PLATFORM_BUILD_DATE __DATE__ ", " __TIME__
+#define PLATFORM_DEVELOPER "Iordanis Kostelidis <iordkost@ihu.gr>"
+#define PLATFORM_UNIVERSITY "International Hellenic University"
+#define PLATFORM_DEPARTMENT "Department of Computer, Informatics and Telecommunications Engineering"
+#define PLATFORM_ACADEMIC_PROGRAM "MSc in Robotics"
+
 auto DEVICE_SERIAL_BAUD = MONITOR_BAUD;
 auto DEVICE_HTTP_DOMAIN = HTTP_DOMAIN;
 auto DEVICE_HTTP_PORT = HTTP_PORT;
@@ -60,6 +74,7 @@ auto WIFI_SSID_PASSWORD = SSID_PASSWORD;
 
 ESP8266WebServer server(DEVICE_HTTP_PORT);
 
+void printPlatformInfo();
 void handleStatus();
 void handleData();
 void handleNotFound();
@@ -67,6 +82,7 @@ void handleNotFound();
 void setup()
 {
     Serial.begin(DEVICE_SERIAL_BAUD);
+    printPlatformInfo();
 
     WiFi.mode(WIFI_STA);
     WiFi.begin(WIFI_SSID_NAME, WIFI_SSID_PASSWORD);
@@ -84,7 +100,12 @@ void setup()
     Serial.print("IP address: ");
     Serial.println(WiFi.localIP());
 
-    if (MDNS.begin(DEVICE_HTTP_DOMAIN)) { Serial.println("MDNS responder started"); }
+    if (MDNS.begin(DEVICE_HTTP_DOMAIN))
+    {
+        Serial.println("MDNS responder started");
+        Serial.print("Hostname: ");
+        Serial.println(WiFi.hostname());
+    }
 
     server.on("/", handleStatus);
     server.on("/status", handleStatus);
@@ -97,6 +118,23 @@ void loop()
 {
     server.handleClient();
     MDNS.update();
+}
+
+void printPlatformInfo()
+{
+    Serial.println(PLATFORM_NAME);
+    Serial.print(" version\t\t");
+    Serial.println(PLATFORM_VERSION);
+    Serial.print(" build date\t\t");
+    Serial.println(PLATFORM_BUILD_DATE);
+    Serial.print(" developer\t\t");
+    Serial.println(PLATFORM_DEVELOPER);
+    Serial.print(" university\t\t");
+    Serial.println(PLATFORM_UNIVERSITY);
+    Serial.print(" department\t\t");
+    Serial.println(PLATFORM_DEPARTMENT);
+    Serial.print(" academic program\t");
+    Serial.println(PLATFORM_ACADEMIC_PROGRAM);
 }
 
 void handleStatus()
